@@ -4,11 +4,13 @@ from spotipy.oauth2 import SpotifyOAuth
 from vosk import Model, KaldiRecognizer, SetLogLevel
 
 SetLogLevel(-1)
-model = Model(r"C:\Users\tomas\Desktop\vosk_modely\vosk-model-small-en-us-0.15")
+load_dotenv()
+
+model_path = os.getenv("MODEL_PATH")
+keyword = os.getenv("KEYWORD")
+model = Model(model_path)
 recognizer = KaldiRecognizer(model, 16000)
 
-load_dotenv()
-keyword = "michael"
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
     client_id=os.getenv("SPOTIFY_CLIENT_ID"),
     client_secret=os.getenv("SPOTIFY_CLIENT_SECRET"),
@@ -38,7 +40,7 @@ def get_track_uri(clean_text):
         track_name = track['name'].lower()
         is_original_version = all(
             term not in track_name 
-            for term in ['acoustic', 'live', 'remix', 'version', 'cover']
+            for term in ['acoustic', 'live', 'remix', 'version', 'cover', 'audio', '8d']
         )
         
         if artist_name:
@@ -71,6 +73,17 @@ def voice_listener():
                     else:
                         print("track not found")
                         print(clean_text)
+                elif "que" in text:
+                    clean_text = text.replace(keyword, "").replace("que", "").strip()
+                    uri = get_track_uri(clean_text)
+                    if uri:
+                        sp.add_to_queue(uris=[str(uri)])
+                        print("Playing: ",clean_text)
+                    else:
+                        print("track not found")
+                        print(clean_text)
+                elif "next" in text:
+                    sp.next_track
                 elif "pause" in text or "wait" in text:
                     sp.pause_playback()
                     print("Pausing")
