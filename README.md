@@ -1,12 +1,24 @@
-# Info
 Simple python script for switching songs using spotify API and voice recognition VOSK
-
-## Setup - WILL BE UPDATED
+### Setup
 ##### Dependencies
 ```python
 pip install spotipy python-dotenv vosk pyaudio
 ```
-##### Instalation
+##### Instalation - windows
+```powershell
+git clone https://github.com/TousTarm/DJ.git
+cd DJ
+(
+  echo MODEL_PATH="vosk-model-small-en-us-0.15"
+  echo KEYWORD="spotify"
+  echo SPOTIFY_CLIENT_ID="your_client_id"
+  echo SPOTIFY_CLIENT_SECRET="your_client_secret"
+  echo SPOTIFY_REDIRECT_URI="http://localhost:8888/callback"
+) > .env
+powershell -command "Invoke-WebRequest -Uri 'https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip' -OutFile 'vosk-model-small-en-us-0.15.zip'"
+powershell -command "Expand-Archive -Path 'vosk-model-small-en-us-0.15.zip' -DestinationPath ."
+```
+##### Instalation - linux
 ```bash
 git clone https://github.com/TousTarm/DJ.git
 cd DJ
@@ -14,9 +26,10 @@ echo -e 'MODEL_PATH="vosk-model-small-en-us-0"\nKEYWORD="spotify"\nSPOTIFY_CLIEN
 wget https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip
 unzip vosk-model-small-en-us-0.15.zip
 ```
+##### Instalation - shared
 On spotify developer dashboard (https://developer.spotify.com/dashboard) create new app and paste SPOTIFI_CLIENT_ID, SPOTIFY_CLIENT_SECRET and SPOTIFI_CLIENT_URI into .env file
 
-## Usage
+### Usage
 run app by:
 ```python
 python app.py
@@ -37,16 +50,10 @@ program fails if already running action is performed
 keyword capturing works pretty bad (probably caused by pronunciation)
 
 ### Todo
-support pro češtinu  # Info
+support pro češtinu  
 move to docker  
-init git repo  
 volume management  
-support for numbers  
-support for common songs  
-update speech recognition  
-update readme  
-comment code
-parametrs for terminal run
-linux support
-model path přepsat do enviroment variable
+support for numbers    
+comment code  
 better filter algorythm
+fix bugs :q
