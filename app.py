@@ -10,12 +10,13 @@ model_path = os.getenv("MODEL_PATH")
 keyword = os.getenv("KEYWORD")
 model = Model(model_path)
 recognizer = KaldiRecognizer(model, 16000)
+volume = 30
 
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
     client_id=os.getenv("SPOTIFY_CLIENT_ID"),
     client_secret=os.getenv("SPOTIFY_CLIENT_SECRET"),
     redirect_uri=os.getenv("SPOTIFY_REDIRECT_URI"),
-    scope= "user-read-playback-state user-modify-playback-state"
+    scope="user-read-playback-state user-modify-playback-state"
 ))
 
 def get_track_uri(clean_text):
@@ -57,6 +58,7 @@ def get_track_uri(clean_text):
     return results['tracks']['items'][0]['uri']
 
 def voice_listener():
+    global volume
     while True:
         data = mic.read(4096)
         if recognizer.AcceptWaveform(data):
@@ -65,46 +67,53 @@ def voice_listener():
             text = result_dict["text"]
             if keyword in text:
                 if "play" in text:
-                    clean_text = text.replace(keyword, "").replace("play", "").strip()
-                    uri = get_track_uri(clean_text)
+                    query = text.replace(keyword, "").replace(" play", "").strip()
+                    uri = get_track_uri(query)
                     if uri:
                         sp.start_playback(uris=[str(uri)])
-                        print("Playing: ",clean_text)
+                        print("Playing: ",query)
                     else:
-                        print("track not found")
-                        print(clean_text)
+                        print("Track not found: ",query)
                 elif "que" in text:
-                    clean_text = text.replace(keyword, "").replace("que", "").strip()
-                    uri = get_track_uri(clean_text)
+                    query = text.replace(keyword, "").replace(" que", "").strip()
+                    uri = get_track_uri(query)
                     if uri:
-                        sp.add_to_queue(uris=[str(uri)])
-                        print("Playing: ",clean_text)
+                        sp.add_to_queue(uri=str(uri))
+                        print("Added to que: ",query)
                     else:
-                        print("track not found")
-                        print(clean_text)
+                        print("Track not found: ",query)
                 elif "next" in text:
-                    sp.next_track
+                    sp.next_track()
                 elif "pause" in text or "wait" in text:
                     sp.pause_playback()
                     print("Pausing")
                 elif "continue" in text:
                     sp.start_playback()
-                    print("contiuning")
+                    print("Contiuning")
+                elif "higher" in text:
+                    volume += 10
+                    sp.volume(volume)
+                    print("Volume increased to: ",volume,"%")
+                elif "lower" in text:
+                    volume -= 10
+                    sp.volume(volume)
+                    print("Volume decreased to: ",volume,"%")
                 elif "stop" in text:
                     os.system('cls')
                     print("Exiting...")
                     sp.pause_playback()
                     break
                 else:
-                    print(keyword, "did not understand: ",text)
+                    print(keyword, "Did not understand: ",text)
             elif "test" in text:
-                print("successful")
+                print("Success!")
             elif text != "":
-                print("captured but not used:",text)
+                print("Captured but not used:",text)
 
+sp.volume(volume)
 mic = pyaudio.PyAudio().open(rate=16000, channels=1, format=pyaudio.paInt16, input=True, frames_per_buffer=8192)
 mic.start_stream()
-print("Listening begun")
+print("Listening started")
 
 if __name__ == "__main__":
     voice_listener()
