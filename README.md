@@ -1,8 +1,8 @@
 A simple Python script for switching songs using the Spotify API and voice recognition with VOSK.
 ### Setup
 ##### Dependencies
-```bash
-pip install spotipy python-dotenv vosk pyaudio
+```
+spotipy python-dotenv vosk pyaudio
 ```
 ##### Instalation - windows
 ```powershell
